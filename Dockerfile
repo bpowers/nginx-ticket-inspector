@@ -95,8 +95,10 @@ ENV GOPATH="/"
 RUN go get -u github.com/FiloSottile/mkcert \
  && mkcert -install \
  && mkcert -cert-file /etc/nginx/nginx.crt -key-file /etc/nginx/nginx.key server.test localhost 127.0.0.1 ::1 \
- && mkcert -cert-file /etc/client.crt -key-file /etc/client.key client.test localhost 127.0.0.1 ::1
-
+ && mkcert -cert-file /etc/client.crt -key-file /etc/client.key client.test localhost 127.0.0.1 ::1 \
+ && cp /root/.local/share/mkcert/rootCA.pem /etc/nginx/client-ca.crt \
+ && chown nginx:nginx /etc/nginx/client-ca.crt \
+ && chmod 440 /etc/nginx/client-ca.crt
 
 COPY nginx.conf /etc/nginx/nginx.conf
 
