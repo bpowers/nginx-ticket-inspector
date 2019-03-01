@@ -86,16 +86,20 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 RUN dd if=/dev/urandom bs=1 count=80 >/etc/nginx/ticket.key \
  && chmod 400 /etc/nginx/ticket.key
 
+RUN openssl dhparam -out /etc/nginx/dhparams.1024.pem 1024
+
 ENV PATH="$PATH:/usr/local/go/bin"
 ENV GOROOT="/usr/local/go"
 ENV GOPATH="/"
 
 RUN go get -u github.com/FiloSottile/mkcert \
  && mkcert -install \
- && mkcert -cert-file /etc/nginx/nginx.crt -key-file /etc/nginx/nginx.key localhost 127.0.0.1 ::1
+ && mkcert -cert-file /etc/nginx/nginx.crt -key-file /etc/nginx/nginx.key server.test localhost 127.0.0.1 ::1 \
+ && mkcert -cert-file /etc/client.crt -key-file /etc/client.key client.test localhost 127.0.0.1 ::1
 
-RUN openssl dhparam -out /etc/nginx/dhparams.1024.pem 1024
 
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# libnss3-tools
+COPY run.sh /run.sh
+
+CMD [ "/run.sh" ]
